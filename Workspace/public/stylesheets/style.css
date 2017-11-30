@@ -6,3 +6,44 @@ body {
 a {
   color: #00B7FF;
 }
+
+div.container {
+    hight: 600px;
+  width: 105%;
+  border: 1px solid gray;
+}
+
+header, footer {
+  padding: 1em;
+  color: black;
+  background-color: lightgrey;
+  clear: left;
+  text-align: center;
+}
+
+nav {
+  float: left;
+  width: 10px;
+    hight: 800px;
+  margin: 0;
+  padding: 1em;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+nav ul a {
+  text-decoration: none;
+}
+
+article {
+  margin-left: 170px;
+  border-left: 1px solid gray;
+  padding: 1em;
+  overflow: hidden;
+    height:470px;
+    width:350px;
+    float:left;
+}
