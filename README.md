@@ -6,3 +6,10 @@
 
 This project will gather and analyze data from two major sources to provide a map of local food
 trucks events for everyone to browse.
+
+#### Run web application:
+
+```
+npm install
+npm start
+```
