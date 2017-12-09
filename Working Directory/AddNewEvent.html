@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Add New Event</title>
+<style>
+/* The Modal (background) */
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: #eee; /* Black w/ opacity */
+	-webkit-animation-name: fadeIn; /* Fade in the background */
+	-webkit-animation-duration: 0.4s;
+	animation-name: fadeIn;
+	animation-duration: 0.4s
+}
+
+/* The Close Button */
+.close {
+	color: black;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.close:hover, .close:focus {
+	color: #000;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.modal-header {
+	padding: 2px 16px;
+	background-color: beige;
+	font-style: unset;
+	color: black;
+}
+
+.modal-body {
+	padding: 2px 16px;
+}
+
+.modal-footer {
+	padding: 2px 16px;
+	background-color: #5cb85c;
+	color: white;
+}
+
+.body {
+	background-color: #525252;
+}
+
+.centered-form {
+	margin-top: 60px;
+}
+
+.centered-form .panel {
+	background: rgba(255, 255, 255, 0.8);
+	box-shadow: rgba(0, 0, 0, 0.3) 20px 20px 20px;
+}
+
+/* Add Animation */
+@
+-webkit-keyframes slideIn {
+	from {bottom: -300px;
+	opacity: 0
+}
+
+to {
+	bottom: 0;
+	opacity: 1
+}
+
+}
+@
+keyframes slideIn {
+	from {bottom: -300px;
+	opacity: 0
+}
+
+to {
+	bottom: 0;
+	opacity: 1
+}
+
+}
+@
+-webkit-keyframes fadeIn {
+	from {opacity: 0
+}
+
+to {
+	opacity: 1
+}
+
+}
+@
+keyframes fadeIn {
+	from {opacity: 0
+}
+
+to {
+	opacity: 1
+}
+
+}
+.html, .body {
+	color: #ccc;
+	background: #2D3945;
+	font-family: Calibri;
+}
+
+.container {
+	width: 360px;
+	margin: 0 auto;
+	padding: 5px 20px 0 20px;
+	border: 2px solid #ccc;
+	border-radius: 7px;
+}
+
+.container legend {
+	color: #ccc;
+	margin: 0 0 0 280px;
+	padding: 0;
+	letter-spacing: 2px;
+}
+
+.wrapper {
+	margin: 0 0 20px 0;
+}
+
+.hint {
+	color: #888;
+	margin: 0;
+	font-size: 12px;
+	text-align: justify;
+}
+
+.lbl-tb {
+	font-size: 12px;
+}
+
+.frm-ctrl {
+	background: transparent;
+	margin: 5px 0;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	outline: none;
+	font-family: Calibri;
+}
+
+.tb {
+	width: 350px;
+	font-size: 19px;
+}
+
+.btn {
+	width: 360px;
+	height: 40px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	cursor: pointer;
+	transition: all 0.2s
+}
+
+.btn:hover {
+	color: #2D3945;
+	background: #eee;
+}
+
+.btn:active {
+	border: 1px solid #333;
+}
+</style>
+</head>
+<body>
+	<!-- Trigger/Open The Modal -->
+	<button id="myBtn">Add New event</button>
+
+	<!-- The Modal -->
+	<div id="myModal" class="modal">
+
+		<fieldset class="container"
+			style="margin-top: 100px; background-color: beige">
+			<span class="close">&times;</span>
+			<h1 class="modal-header">Add New Event</h1>
+			
+			<hr />
+			<legend>
+				<i class="fa fa-empire fa-4x"></i>
+			</legend>
+			
+
+			<div class="wrapper">
+				<label><i class="fa fa-user fa-fw"></i> Twitter ID</label> <br /> <input
+					id="tbUnm" type="text" class="frm-ctrl tb" spellcheck="false"
+					autocomplete="off" />
+			</div>
+			<div class="wrapper">
+				<label><i></i> Merchant Name</label> <br /> <input id="tbUnm"
+					type="text" class="frm-ctrl tb" />
+			</div>
+			<div class="wrapper">
+				<label><i class="fa fa-user fa-fw"></i> Address</label> <br /> <input
+					id="tbUnm" type="text" class="frm-ctrl tb" spellcheck="false"
+					autocomplete="off" />
+			</div>
+			<div class="wrapper">
+				<label><i class="fa fa-envelope-o fa-fw"></i> Event Date</label> <br />
+				<input id="tbEmail" type="date" placeholder="mm/dd/yyyy"
+					class="frm-ctrl tb" spellcheck="false" autocomplete="off" />
+			</div>
+
+			<div class="wrapper">
+				<input type="submit" class="frm-ctrl btn" value="Add Event"
+					onClick="" />
+			</div>
+		</fieldset>
+	</div>
+
+	<script>
+		// Get the modal
+		var modal = document.getElementById('myModal');
+
+		// Get the button that opens the modal
+		var btn = document.getElementById("myBtn");
+
+		// Get the <span> element that closes the modal
+		var span = document.getElementsByClassName("close")[0];
+
+		// When the user clicks the button, open the modal 
+		btn.onclick = function() {
+			modal.style.display = "block";
+		}
+
+		// When the user clicks on <span> (x), close the modal
+		span.onclick = function() {
+			modal.style.display = "none";
+		}
+
+		// When the user clicks anywhere outside of the modal, close it
+		window.onclick = function(event) {
+			if (event.target == modal) {
+				modal.style.display = "none";
+			}
+		}
+	</script>
+
+</body>
+</html>
