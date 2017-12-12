@@ -1,6 +1,6 @@
 # Project-Team-22
 
-#### Project Name - Food Truck When and Where
+### Project Name - Food Truck Locator
 
 #### Project description:
 
