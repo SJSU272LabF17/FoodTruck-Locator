@@ -18,6 +18,6 @@ trucks events for everyone to browse.
 
 1. Open project folder `twitterEventCreater` using IntelliJ IDEA
 2. Make sure Java JDK 8 is installed on your machine
-3. Refresh refresh gradle on IntelliJ IDEA
+3. Refresh gradle on IntelliJ IDEA
 4. Click `Run >`
 5. The application is running
