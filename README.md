@@ -9,7 +9,15 @@ trucks events for everyone to browse.
 
 #### Run web application:
 
-```
-npm install
-npm start
-```
+1. Open project folder `Workspace`
+2. Make sure MySQL is installed on your machine
+3. Run `node index.js`
+4. The application is running 
+
+#### Run NLP event creater:
+
+1. Open project folder `twitterEventCreater` using IntelliJ IDEA
+2. Make sure Java JDK 8 is installed on your machine
+3. Refresh refresh gradle on IntelliJ IDEA
+4. Click `Run >`
+5. The application is running
