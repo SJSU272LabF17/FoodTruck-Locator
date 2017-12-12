@@ -1,0 +1,292 @@
+<!DOCTYPE html >
+<html>
+<head>
+    <link rel="shortcut icon" type="image/png" href="favicon.png" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <title>Food truck locator</title>
+<style>
+  #map {
+    height: 100%;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: arial;
+  }
+  .button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #008CBA;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 14px;
+  padding: 7px;
+  width: 85px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+#map
+{
+  box-shadow: 5px 10px 18px #888888;
+}
+.header
+{
+  width: 100%;
+  height: 10%;
+  background-color: rgb(96, 102, 104);
+}
+.header_text
+{
+  padding: 25px;
+}
+.header_text span
+{
+  color: rgb(218, 226, 221);
+  font-size : 25px
+}
+
+@import url(http://weloveiconfonts.com/api/?family=fontawesome);
+@import url(http://meyerweb.com/eric/tools/css/reset/reset.css);
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
+    .twitter-before {
+	background-color: #189bcb;
+	border-radius: 3px 0px 0px 3px;
+	-moz-border-radius: 3px 0px 0px 3px;
+	-webkit-border-radius: 3px 0px 0px 3px;
+	color: #f4f4f4;
+	display: block;
+	float: left;
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	width: 50px;
+}
+</style>
+
+</head>
+<body style="margin:0px; padding:0px;background-color:rgb(234, 236, 239)" onload="initMap()">
+  <div class="header">
+    <div class="header_text"><span>Food Truck Locator</span></div>
+    <p><a class="twitter-before" href="/auth/twitter"><span class="fontawesome-twitter">Sign in</span></a>
+  </div>
+  <div style="width: 60%; height: 100; margin: auto; padding-top:15px; padding-bottom:15px">
+       <label for="addressInput">Search location:</label>
+       <input type="text" id="addressInput" size="15" style="border-radius: 5px;"/>
+       <label for="dateInput">Date:</label>
+       <input type="date" id="dateInput" style="border-radius:7px;">
+      <label for="radiusSelect">Radius:</label>
+      <select id="radiusSelect" label="Radius" style="border-radius: 7px">
+        <option value="10">10 miles</option>
+        <option value="20">20 miles</option>
+        <option value="30">30 miles</option>
+        <option value="50" selected>50 miles</option>
+      </select>
+      <button class="button" id="searchButton"><span>Search</span></button>
+      <select id="locationSelect" style="width: 13%; visibility: hidden"></select>
+  </div>
+  <div id="map" style="width: 60%; height: 70%; border-radius: 15px; margin:auto;"></div>
+  <script>
+    var map;
+    var markers = [];
+    var infoWindow;
+    var locationSelect;
+    var searchButton;
+
+      function initMap() {
+        var sanjose = {lat: 37.3350055, lng: -121.90764489999998};
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: sanjose,
+          zoom: 7,
+          mapTypeId: 'roadmap',
+          mapTypeControlOptions: {style: google.maps.MapTypeControlStyle.DROPDOWN_MENU}
+        });
+        infoWindow = new google.maps.InfoWindow();
+        searchButton = document.getElementById("searchButton").onclick = searchLocations;
+        locationSelect = document.getElementById("locationSelect");
+        locationSelect.onchange = function() {
+          var markerNum = locationSelect.options[locationSelect.selectedIndex].value;
+          if (markerNum != "none"){
+            google.maps.event.trigger(markers[markerNum], 'click');
+          }
+        };
+      }
+
+     function searchLocations() {
+       var address = document.getElementById("addressInput").value;
+       if(address!="")
+       {
+          var geocoder = new google.maps.Geocoder();
+          geocoder.geocode({address: address}, function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+          searchLocationsNear(results[0].geometry.location);
+          } else {
+            alert('address not found');
+          }
+         });
+       }
+       else
+       {
+        navigator.geolocation.getCurrentPosition(function(position){
+            var loc = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+            searchLocationsNear(loc);
+          });
+       }
+     }
+
+     function clearLocations() {
+       infoWindow.close();
+       for (var i = 0; i < markers.length; i++) {
+         markers[i].setMap(null);
+       }
+       markers.length = 0;
+
+       locationSelect.innerHTML = "";
+       var option = document.createElement("option");
+       option.value = "none";
+       option.innerHTML = "See all results:";
+       locationSelect.appendChild(option);
+     }
+
+     function searchLocationsNear(center) {
+       clearLocations();
+       var radius = document.getElementById('radiusSelect').value;
+       var date = document.getElementById('dateInput').value;
+       var searchUrl = 'markers.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&date=' + date;
+       downloadUrl(searchUrl, function(data) {
+         var xml = parseXml(data);
+         var markerNodes = xml.documentElement.getElementsByTagName("marker");
+        //  var filtered = markerNodes.filter(x.name == "abc");
+         if(markerNodes.length != 0)
+         {
+            var bounds = new google.maps.LatLngBounds();
+            for (var i = 0; i < markerNodes.length; i++) {
+              var id = markerNodes[i].getAttribute("id");
+              var name = markerNodes[i].getAttribute("name");
+              var address = markerNodes[i].getAttribute("address");
+              var twitter = markerNodes[i].getAttribute("twitter");
+              var distance = parseFloat(markerNodes[i].getAttribute("distance"));
+              var latlng = new google.maps.LatLng(parseFloat(markerNodes[i].getAttribute("lat")),parseFloat(markerNodes[i].getAttribute("lng")));
+              createOption(name, i);
+              createMarker(latlng, name, address, twitter);
+              bounds.extend(latlng);
+            }
+            map.fitBounds(bounds);
+         }
+         locationSelect.style.visibility = "visible";
+         locationSelect.onchange = function() {
+           var markerNum = locationSelect.options[locationSelect.selectedIndex].value;
+           google.maps.event.trigger(markers[markerNum], 'click');
+         };
+       });
+     }
+
+     function createMarker(latlng, name, address, twitter_handle) {
+        var html = document.createElement('div');
+        var strong = document.createElement('strong');
+        strong.textContent = name;
+        html.appendChild(strong);
+        html.appendChild(document.createElement('br'));
+        var twitter = document.createElement('a');
+        var twitter_text = document.createTextNode(twitter_handle);
+        twitter.appendChild(twitter_text);
+        twitter.title = twitter_handle;
+        twitter.href = "https://twitter.com/"+twitter_handle;
+        twitter.target = "_blank";
+        html.appendChild(twitter);
+        html.appendChild(document.createElement('br'));
+        var text = document.createElement('text');
+        text.textContent = address;
+        html.appendChild(text);
+        var myloc = "My+location";
+        var loc = document.createElement('text');
+        var link = document.createElement('a');
+        var linkText = document.createTextNode("To here");
+        link.appendChild(linkText);
+        link.title = "To here";
+        link.href = "http://maps.google.com/maps?saddr="+myloc+"&daddr="+latlng.lat()+","+latlng.lng();
+        link.target = "_blank";
+        html.appendChild(document.createElement('br'));
+        html.appendChild(link);
+        var marker = new google.maps.Marker({
+          map: map,
+          position: latlng
+        });
+        google.maps.event.addListener(marker, 'click', function() {
+          infoWindow.setContent(html);
+          infoWindow.open(map, marker);
+        });
+        markers.push(marker);
+      }
+
+     function createOption(name, num) {
+       
+        var option = document.createElement("option");
+        option.value = num;
+        option.innerHTML = name;
+        locationSelect.appendChild(option);
+     }
+
+     function downloadUrl(url, callback) {
+        var request = window.ActiveXObject ?
+            new ActiveXObject('Microsoft.XMLHTTP') :
+            new XMLHttpRequest;
+
+        request.onreadystatechange = function() {
+          if (request.readyState == 4) {
+            request.onreadystatechange = doNothing;
+            callback(request.responseText, request.status);
+          }
+        };
+
+        request.open('GET', url, true);
+        request.send(null);
+     }
+
+     function parseXml(str) {
+        if (window.ActiveXObject) {
+          var doc = new ActiveXObject('Microsoft.XMLDOM');
+          doc.loadXML(str);
+          return doc;
+        } else if (window.DOMParser) {
+          return (new DOMParser).parseFromString(str, 'text/xml');
+        }
+     }
+
+     function doNothing() {}
+</script>
+  <script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzHsjgIycpJS54hxSo2ipPVk3sOWys8z8&callback=initMap">
+  </script>
+</body>
+</html>
