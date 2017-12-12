@@ -7,7 +7,12 @@
 This project will gather and analyze data from two major sources to provide a map of local food
 trucks events for everyone to browse.
 
+- Search result
 ![image1](images/1.png)
+- Radius filter
+![image2](images/2.png)
+- Information view on marker
+![image3](images/3.png)
 
 #### Run web application:
 
