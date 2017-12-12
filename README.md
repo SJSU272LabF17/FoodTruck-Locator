@@ -7,6 +7,8 @@
 This project will gather and analyze data from two major sources to provide a map of local food
 trucks events for everyone to browse.
 
+![image1](images/1.png)
+
 #### Run web application:
 
 1. Open project folder `Workspace`
