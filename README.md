@@ -14,9 +14,9 @@ trucks events for everyone to browse.
 - Information view on marker
 ![image3](images/3.png)
 - Twitter login page
-![image4](images/4.jpg)
+![image4](images/4_new.jpg)
 - Logged in page (via Twitter)
-![image5](images/5.jpg)
+![image5](images/5_new.jpg)
 
 #### Run web application:
 
