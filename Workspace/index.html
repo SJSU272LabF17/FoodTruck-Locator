@@ -1,9 +1,10 @@
 <!DOCTYPE html >
 <head>
-    <link rel="shortcut icon" type="image/png" href="favicon.png" />
+    <!-- <link rel="shortcut icon" type="image/ico" href="favicon.ico" /> -->
   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <title>Food truck locator</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 <style>
   #map {
     height: 100%;
@@ -28,14 +29,12 @@
   cursor: pointer;
   margin: 5px;
 }
-
 .button span {
   cursor: pointer;
   display: inline-block;
   position: relative;
   transition: 0.5s;
 }
-
 .button span:after {
   content: '\00bb';
   position: absolute;
@@ -44,11 +43,9 @@
   right: -20px;
   transition: 0.5s;
 }
-
 .button:hover span {
   padding-right: 25px;
 }
-
 .button:hover span:after {
   opacity: 1;
   right: 0;
@@ -72,7 +69,6 @@
   color: rgb(218, 226, 221);
   font-size : 25px
 }
-
 .twitter-button
 {
   float: right;
@@ -121,7 +117,6 @@
     var infoWindow;
     var locationSelect;
     var searchButton;
-
       function initMap() {
         var sanjose = {lat: 37.3350055, lng: -121.90764489999998};
         map = new google.maps.Map(document.getElementById('map'), {
@@ -140,7 +135,6 @@
           }
         };
       }
-
      function searchLocations() {
        var address = document.getElementById("addressInput").value;
        if(address!="")
@@ -162,28 +156,26 @@
           });
        }
      }
-
      function clearLocations() {
        infoWindow.close();
        for (var i = 0; i < markers.length; i++) {
          markers[i].setMap(null);
        }
        markers.length = 0;
-
        locationSelect.innerHTML = "";
        var option = document.createElement("option");
        option.value = "none";
        option.innerHTML = "See all results:";
        locationSelect.appendChild(option);
      }
-
      function searchLocationsNear(center) {
        clearLocations();
        var radius = document.getElementById('radiusSelect').value;
        var date = document.getElementById('dateInput').value;
        var searchUrl = 'markers.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&date=' + date;
-       downloadUrl(searchUrl, function(data) {
-         var xml = parseXml(data);
+       //downloadUrl(searchUrl, function(data) {
+        $.post("/map", {"lat": center.lat(), "lon":center.lng(), "radius":radius, "date":date}, function(data){  
+         var xml = (data);
          var markerNodes = xml.documentElement.getElementsByTagName("marker");
         //  var filtered = markerNodes.filter(x.name == "abc");
          if(markerNodes.length != 0)
@@ -203,14 +195,13 @@
             }
             map.fitBounds(bounds);
          }
-        //  locationSelect.style.visibility = "visible";
+        locationSelect.style.visibility = "visible";
          locationSelect.onchange = function() {
            var markerNum = locationSelect.options[locationSelect.selectedIndex].value;
            google.maps.event.trigger(markers[markerNum], 'click');
          };
        });
      }
-
      function createMarker(latlng, name, address, twitter_handle, tweet) {
         var html = document.createElement('div');
         var strong = document.createElement('strong');
@@ -255,7 +246,6 @@
         });
         markers.push(marker);
       }
-
      function createOption(name, num) {
        
         var option = document.createElement("option");
@@ -263,23 +253,19 @@
         option.innerHTML = name;
         locationSelect.appendChild(option);
      }
-
      function downloadUrl(url, callback) {
         var request = window.ActiveXObject ?
             new ActiveXObject('Microsoft.XMLHTTP') :
             new XMLHttpRequest;
-
         request.onreadystatechange = function() {
           if (request.readyState == 4) {
             request.onreadystatechange = doNothing;
             callback(request.responseText, request.status);
           }
         };
-
         request.open('GET', url, true);
         request.send(null);
      }
-
      function parseXml(str) {
         if (window.ActiveXObject) {
           var doc = new ActiveXObject('Microsoft.XMLDOM');
@@ -289,7 +275,6 @@
           return (new DOMParser).parseFromString(str, 'text/xml');
         }
      }
-
      function doNothing() {}
 </script>
   <script async defer

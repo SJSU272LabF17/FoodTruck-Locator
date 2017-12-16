@@ -11,35 +11,24 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 		<script src="http://malsup.github.io/min/jquery.form.min.js"></script>    
-		<script src="home.js"></script>
-		<script>
-			function myMap() {
-				var mapProp= {
-					center:new google.maps.LatLng(51.508742,-0.120850),
-					zoom:5,
-				};
-				var geocoder = new google.maps.Geocoder();
-				address = "San Jose";
-				geocoder.geocode( { 'address': address}, function(results, status) {
-
-					if (status == google.maps.GeocoderStatus.OK) {
-						var latitude = results[0].geometry.location.lat();
-						var longitude = results[0].geometry.location.lng();
-					}
-
-					console.log(latitude);
-					console.log(longitude);
-
-					var myLatLng = {lat: latitude, lng: longitude};
-				});
-			}
+		<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzHsjgIycpJS54hxSo2ipPVk3sOWys8z8&callback=initMap">
 		</script>
+		<script src="home.js"></script>
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				width: 100%;
+			}
+		</style>
 		<script async defer
 		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzHsjgIycpJS54hxSo2ipPVk3sOWys8z8&callback=myMap">
 		</script>
 	</head>
 
-<body ng-app="cmpe272App"  ng-controller="homectrl">
+<body ng-app="cmpe272App"  ng-controller="homectrl" onload="initMap()" ng-init="user=#{JSON.stringify(user)}">
 
 		<section id="body" class="width">
 
@@ -48,7 +37,8 @@
 					<section id="content">
 						<article class="expanded">
 			
-							<h3 >Map goes here</h3>
+							<!-- <h3 >Map goes here</h3> -->
+							<div id="map" style="width: 60%; height: 70%; border-radius: 15px; position:absolute; margin-left: 300px;"></div>
 			
 						</article>
 						<article class="expanded">
@@ -60,6 +50,177 @@
 						</article>
 					</section>
 				</div>
+
+				<script>
+					var map;
+					var markers = [];
+					var infoWindow;
+					var locationSelect;
+					var searchButton;
+				
+					  function initMap() {
+						var sanjose = {lat: 37.3350055, lng: -121.90764489999998};
+						map = new google.maps.Map(document.getElementById('map'), {
+						  center: sanjose,
+						  zoom: 7,
+						  mapTypeId: 'roadmap',
+						  mapTypeControlOptions: {style: google.maps.MapTypeControlStyle.DROPDOWN_MENU}
+						});
+						infoWindow = new google.maps.InfoWindow();
+						searchButton = document.getElementById("searchButton").onclick = searchLocations;
+						locationSelect = document.getElementById("locationSelect");
+						locationSelect.onchange = function() {
+						  var markerNum = locationSelect.options[locationSelect.selectedIndex].value;
+						  if (markerNum != "none"){
+							google.maps.event.trigger(markers[markerNum], 'click');
+						  }
+						};
+					  }
+				
+					 function searchLocations() {
+					   var address = document.getElementById("addressInput").value;
+					   if(address!="")
+					   {
+						  var geocoder = new google.maps.Geocoder();
+						  geocoder.geocode({address: address}, function(results, status) {
+						  if (status == google.maps.GeocoderStatus.OK) {
+						  searchLocationsNear(results[0].geometry.location);
+						  } else {
+							alert('address not found');
+						  }
+						 });
+					   }
+					   else
+					   {
+						navigator.geolocation.getCurrentPosition(function(position){
+							var loc = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+							searchLocationsNear(loc);
+						  });
+					   }
+					 }
+				
+					 function clearLocations() {
+					   infoWindow.close();
+					   for (var i = 0; i < markers.length; i++) {
+						 markers[i].setMap(null);
+					   }
+					   markers.length = 0;
+				
+					   locationSelect.innerHTML = "";
+					   var option = document.createElement("option");
+					   option.value = "none";
+					   option.innerHTML = "See all results:";
+					   locationSelect.appendChild(option);
+					 }
+				
+					 function searchLocationsNear(center) {
+					   clearLocations();
+					   var radius = document.getElementById('radiusSelect').value;
+					   var date = document.getElementById('dateInput').value;
+					   var searchUrl = 'markers.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&date=' + date;
+					   downloadUrl(searchUrl, function(data) {
+						 var xml = parseXml(data);
+						 var markerNodes = xml.documentElement.getElementsByTagName("marker");
+						//  var filtered = markerNodes.filter(x.name == "abc");
+						 if(markerNodes.length != 0)
+						 {
+							var bounds = new google.maps.LatLngBounds();
+							for (var i = 0; i < markerNodes.length; i++) {
+							  var id = markerNodes[i].getAttribute("id");
+							  var name = markerNodes[i].getAttribute("name");
+							  var address = markerNodes[i].getAttribute("address");
+							  var twitter = markerNodes[i].getAttribute("twitter");
+							  var distance = parseFloat(markerNodes[i].getAttribute("distance"));
+							  var latlng = new google.maps.LatLng(parseFloat(markerNodes[i].getAttribute("lat")),parseFloat(markerNodes[i].getAttribute("lng")));
+							  createOption(name, i);
+							  createMarker(latlng, name, address, twitter);
+							  bounds.extend(latlng);
+							}
+							map.fitBounds(bounds);
+						 }
+						 locationSelect.style.visibility = "visible";
+						 locationSelect.onchange = function() {
+						   var markerNum = locationSelect.options[locationSelect.selectedIndex].value;
+						   google.maps.event.trigger(markers[markerNum], 'click');
+						 };
+					   });
+					 }
+				
+					 function createMarker(latlng, name, address, twitter_handle) {
+						var html = document.createElement('div');
+						var strong = document.createElement('strong');
+						strong.textContent = name;
+						html.appendChild(strong);
+						html.appendChild(document.createElement('br'));
+						var twitter = document.createElement('a');
+						var twitter_text = document.createTextNode(twitter_handle);
+						twitter.appendChild(twitter_text);
+						twitter.title = twitter_handle;
+						twitter.href = "https://twitter.com/"+twitter_handle;
+						twitter.target = "_blank";
+						html.appendChild(twitter);
+						html.appendChild(document.createElement('br'));
+						var text = document.createElement('text');
+						text.textContent = address;
+						html.appendChild(text);
+						var myloc = "My+location";
+						var loc = document.createElement('text');
+						var link = document.createElement('a');
+						var linkText = document.createTextNode("To here");
+						link.appendChild(linkText);
+						link.title = "To here";
+						link.href = "http://maps.google.com/maps?saddr="+myloc+"&daddr="+latlng.lat()+","+latlng.lng();
+						link.target = "_blank";
+						html.appendChild(document.createElement('br'));
+						html.appendChild(link);
+						var marker = new google.maps.Marker({
+						  map: map,
+						  position: latlng
+						});
+						google.maps.event.addListener(marker, 'click', function() {
+						  infoWindow.setContent(html);
+						  infoWindow.open(map, marker);
+						});
+						markers.push(marker);
+					  }
+				
+					 function createOption(name, num) {
+					   
+						var option = document.createElement("option");
+						option.value = num;
+						option.innerHTML = name;
+						locationSelect.appendChild(option);
+					 }
+				
+					 function downloadUrl(url, callback) {
+						var request = window.ActiveXObject ?
+							new ActiveXObject('Microsoft.XMLHTTP') :
+							new XMLHttpRequest;
+				
+						request.onreadystatechange = function() {
+						  if (request.readyState == 4) {
+							request.onreadystatechange = doNothing;
+							callback(request.responseText, request.status);
+						  }
+						};
+				
+						request.open('GET', url, true);
+						request.send(null);
+					 }
+				
+					 function parseXml(str) {
+						if (window.ActiveXObject) {
+						  var doc = new ActiveXObject('Microsoft.XMLDOM');
+						  doc.loadXML(str);
+						  return doc;
+						} else if (window.DOMParser) {
+						  return (new DOMParser).parseFromString(str, 'text/xml');
+						}
+					 }
+				
+					 function doNothing() {}
+				</script>
+				
 				<div class="col-sm-3" style="height:-webkit-fill-available;background-color: #81d4fa">
 					<aside id="sidebar" class="column-right">
 							

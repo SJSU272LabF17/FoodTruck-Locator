@@ -11,11 +11,12 @@ var TwitterStrategy  = require('passport-twitter').Strategy;
 var configAuth = require('./auth');
 
 //connection
-var connection = mysql.createConnection({
-    host     : "localhost",
-    user     : "root",
-    password : "admin",
-    database : "twitterlogin"
+var connection = mysql.createPool({
+    host: 'us-cdbr-iron-east-05.cleardb.net',//'localhost',//'ec2-52-53-249-123.us-west-1.compute.amazonaws.com',
+    //port: '8900',//'3306',
+    user: 'bc4ae62ddac889',//'root',
+    password: '880a6aad',//'amey',
+    database: 'heroku_8c76196aca775a9'//'cmpe272'
   });
 
 module.exports = function(passport) {
@@ -23,8 +24,8 @@ module.exports = function(passport) {
     console.log('passport');
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-        console.log('serialize %j', user.username);
-        done(null, "@"+user.username);
+        console.log('serialize %j', user);
+        done(null, user);
     });
 
     // used to deserialize the user
@@ -60,11 +61,12 @@ module.exports = function(passport) {
                     console.log("There is no such user, adding now");
                     connection.query("INSERT into profile(twitter_id, token, username, displayName) VALUES('"+profile.id+"','"+token+"','"+profile.username+"','"+profile.displayName+"')",
                     function(err, result) {
-                        rows["twitter_id"]=profile.id;
-                        rows["token"]=token;
-                        rows["username"]=profile.username;
-                        rows["displayName"]=profile.displayName;
-                        return done(null, profile);
+                        var datasend = {};
+                        datasend["twitter_id"]=profile.id;
+                        datasend["token"]=token;
+                        datasend["username"]=profile.username;
+                        datasend["displayName"]=profile.displayName;
+                        return done(null, datasend);
                     });
                   }
                   else

@@ -9,13 +9,15 @@
   "author": "cmpe272-group22",
   "license": "ISC",
   "devDependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "map-tools": "^2.0.0"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
     "connect-flash": "~0.1.1",
     "ejs": "^2.5.7",
     "express": "~3.4.4",
+    "js2xmlparser": "^3.0.0",
     "mysql": "^2.15.0",
     "passport": "~0.1.17",
     "passport-facebook": "~1.0.2",

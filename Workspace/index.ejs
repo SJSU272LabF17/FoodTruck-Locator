@@ -182,7 +182,8 @@
        clearLocations();
        var radius = document.getElementById('radiusSelect').value;
        var date = document.getElementById('dateInput').value;
-       var searchUrl = 'markers.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&date=' + date;
+       //var searchUrl = 'markers.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&date=' + date;
+       var data = mapFunction(center.lat(), center.lng(), radius, date);
        downloadUrl(searchUrl, function(data) {
          var xml = parseXml(data);
          var markerNodes = xml.documentElement.getElementsByTagName("marker");
